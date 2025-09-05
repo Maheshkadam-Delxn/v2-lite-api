@@ -22,10 +22,14 @@ const memberSchema =  new mongoose.Schema({
         type:String,
         required:true 
     },
-    preferredLanguage:{
+    role:{
         type:String,
         enum :["consultant", "approver", "contractor", "site manager", "manager"],
         required:true 
+    },
+    prefferedLanguage:{
+        type:String,
+        enum:["Arabic","English"]
     },
     service :{
         type:String,
