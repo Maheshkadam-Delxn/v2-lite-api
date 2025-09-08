@@ -1,3 +1,5 @@
+//   /app/api/auth/register
+
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import connectDB from "@/lib/mongoose";
