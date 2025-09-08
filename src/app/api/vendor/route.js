@@ -8,7 +8,7 @@ import { verifyToken } from "@/lib/jwt";
 export async function POST(request) {
   await connectDB();
 
-  // ✅ Pass the Next.js Request object
+  //  Pass the Next.js Request object
   const decoded = verifyToken(request);
 
   if (!decoded) {
@@ -32,5 +32,45 @@ export async function POST(request) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
+
+export async function GET(request) {
+  await connectDB();
+
+  try {
+    const { searchParams } = new URL(request.url);
+
+    //  Sorting
+    const sortField = searchParams.get("sort") || "createdAt";
+    const sortOrder = searchParams.get("order") === "asc" ? 1 : -1;
+
+    //  Filtering
+    const filter = {};
+    ["vendorCode", "taxNo", "gstinNo", "vendorType", "address", "status"].forEach((field) => {
+      const value = searchParams.get(field);
+      if (value) filter[field] = value;
+    });
+
+    //  Searching
+    const search = searchParams.get("search");
+    if (search) {
+      filter.$or = [
+        { vendorCode: { $regex: search, $options: "i" } },
+        { taxNo: { $regex: search, $options: "i" } },
+        { gstinNo: { $regex: search, $options: "i" } },
+        { vendorType: { $regex: search, $options: "i" } },
+        { address: { $regex: search, $options: "i" } },
+        { status: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    const vendors = await Vendor.find(filter).sort({ [sortField]: sortOrder });
+
+    return NextResponse.json({ success: true, data: vendors });
+  } catch (err) {
+    console.error("Vendor GET error:", err);
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  }
+}
+
 
 
