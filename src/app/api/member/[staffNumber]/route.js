@@ -34,7 +34,7 @@ export async function PUT(req, { params }) {
     const {staffNumber} = await params;
     const body = await req.json();
 
-    const updatedMember = await Member.findByIdAndUpdate({staffNumber}, body, {
+    const updatedMember = await Member.findOneAndUpdate({staffNumber}, body, {
       new: true,
       runValidators: true,
     });
@@ -60,7 +60,7 @@ export async function DELETE(req, { params }) {
     await connectDB();
 
     const {staffNumber} = await params;
-    const deletedMember = await Member.findByIdAndDelete({staffNumber});
+    const deletedMember = await Member.findOneAndDelete({staffNumber});
 
     if (!deletedMember) {
       return NextResponse.json({ success: false, message: "Member not found" }, { status: 404 });
