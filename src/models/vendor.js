@@ -10,7 +10,15 @@ const vendorSchema = new mongoose.Schema({
 
 
   status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending"
-  }
+  },
+
+  documents: [
+    {
+      fileName: String,
+      filePath: String,
+      uploadedAt: { type: Date, default: Date.now },
+    },
+  ],
 }, { timestamps: true });
 
 export default mongoose.models.Vendor || mongoose.model("Vendor", vendorSchema);
