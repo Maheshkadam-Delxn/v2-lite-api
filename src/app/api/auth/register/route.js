@@ -1,10 +1,12 @@
 //   /app/api/auth/register
 
+//   /app/api/auth/register
+
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import connectDB from "@/lib/mongoose";
 import User from "@/models/user";
-import Role from "@/models/role"
+import Role from "@/models/role";
 
 function validatePassword(password) {
   const passwordRegex =
@@ -20,7 +22,7 @@ export async function POST(req) {
     const { name, email, phone_number, password, role, memberRole } =
       await req.json();
 
-    // Validation 
+    // Basic validation
     if (!name || !email || !phone_number || !password) {
       return NextResponse.json(
         { success: false, error: "All fields are required" },
@@ -39,6 +41,7 @@ export async function POST(req) {
       );
     }
 
+    // Uniqueness check
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       return NextResponse.json(
@@ -55,7 +58,7 @@ export async function POST(req) {
       );
     }
 
-    // Superadmin Bootstrap 
+    // Superadmin Bootstrap
     const userCount = await User.countDocuments();
     let finalRole = role || "member";
 
@@ -73,33 +76,39 @@ export async function POST(req) {
       }
     }
 
-    const roleDoc = await Role.findOne({role});
-    if(!roleDoc) {
-      return NextResponse.json(
-        {success:false,error:"Role not found"},
-          {status:404}
-      )
-    };
+    // Handle memberRole separately
+    let memberRoleId = null;
+    if (finalRole === "member" && memberRole) {
+      const roleDoc = await Role.findOne({ name: memberRole });
+      if (!roleDoc) {
+        return NextResponse.json(
+          { success: false, error: "Member role not found" },
+          { status: 404 }
+        );
+      }
+      memberRoleId = roleDoc._id;
+    }
 
-    // Hash Password 
+    // Hash Password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create User 
+    // Create User
     const user = await User.create({
       name,
       email,
       phone_number,
       password: hashedPassword,
-      role: roleDoc._id,
-      memberRole: finalRole === "member" ? memberRole : null,
+      role: finalRole,        // string enum
+      memberRole: memberRoleId, // only for members
     });
 
-    // hide password from response
-    const userResponse = await user.populate("role","name permission");
-    delete userResponse.password;
+    // Populate memberRole for response
+    const userResponse = await user.populate("memberRole", "name permissions");
+    const userObj = userResponse.toObject();
+    delete userObj.password;
 
     return NextResponse.json(
-      { success: true, message: "User registered successfully", user: userResponse },
+      { success: true, message: "User registered successfully", user: userObj },
       { status: 201 }
     );
   } catch (error) {
