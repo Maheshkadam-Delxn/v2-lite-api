@@ -23,8 +23,8 @@ const memberSchema =  new mongoose.Schema({
         required:true 
     },
     role:{
-        type:String,
-        enum :["consultant", "approver", "contractor", "site manager", "manager"],
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Role",
         required:true 
     },
     prefferedLanguage:{

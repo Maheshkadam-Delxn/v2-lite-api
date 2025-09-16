@@ -10,14 +10,14 @@ const userSchema = new mongoose.Schema(
     // main role
     role: {
       type: String,
-      enum: ["superadmin", "vendor", "member"],
+      enum: ["superadmin","admin", "vendor", "member"],
       default: "member",
     },
 
     // only required if role = member
     memberRole: {
-      type: String,
-      enum: ["project_admin", "consultant", "contractor", "approver", "site manager", "manager", null],
+      type: mongoose.Schema.Types.ObjectId,
+      ref:"Role",
       default: null,
     },
 

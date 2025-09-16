@@ -139,9 +139,11 @@ export async function POST(req) {
       );
     }
 
-    // Sign JWT
+    const roleName = user.role?.name || "";
+
+    //  Sign JWT
     const token = jwt.sign(
-      { id: user._id, role: user.role, email: user.email },
+      { id: user._id, role: roleName, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );

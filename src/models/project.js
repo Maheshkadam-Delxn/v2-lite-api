@@ -15,10 +15,8 @@ const projectSchema = new mongoose.Schema({
         enum:["Residential","Commercial","Industrial","Infrastructure"],
         required:true
     },
-    startDate:{
-        type:Date,
-        required:true 
-    },
+    startDate: { type: Date},
+    endDate: { type: Date },
     currency:{
         type:String,
         default:"INR"
@@ -41,6 +39,22 @@ const projectSchema = new mongoose.Schema({
     projectPhoto:{
         type:String
     },
+    status: {
+    type: String,
+    enum: ["planned", "in-progress", "on-hold", "completed", "cancelled"],
+    default: "planned"
+  },
+  members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  budget: { type: Number },
+  tags: [{ type: String }],
+    status:{
+        type:String
+    }
 },{timestamps:true});
 
 export default mongoose.models.Project || mongoose.model("Project",projectSchema);
+
+
+  
+  
+  
