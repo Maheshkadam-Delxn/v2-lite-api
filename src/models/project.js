@@ -41,6 +41,9 @@ const projectSchema = new mongoose.Schema({
     projectPhoto:{
         type:String
     },
+    status:{
+        type:String
+    }
 },{timestamps:true});
 
 export default mongoose.models.Project || mongoose.model("Project",projectSchema);

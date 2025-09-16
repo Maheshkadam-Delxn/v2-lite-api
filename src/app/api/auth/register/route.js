@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import connectDB from "@/lib/mongoose";
 import User from "@/models/user";
+import Role from "@/models/role"
 
 function validatePassword(password) {
   const passwordRegex =
@@ -72,6 +73,14 @@ export async function POST(req) {
       }
     }
 
+    const roleDoc = await Role.findOne({role});
+    if(!roleDoc) {
+      return NextResponse.json(
+        {success:false,error:"Role not found"},
+          {status:404}
+      )
+    };
+
     // Hash Password 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -81,12 +90,12 @@ export async function POST(req) {
       email,
       phone_number,
       password: hashedPassword,
-      role: finalRole,
+      role: roleDoc._id,
       memberRole: finalRole === "member" ? memberRole : null,
     });
 
     // hide password from response
-    const userResponse = user.toObject();
+    const userResponse = await user.populate("role","name permission");
     delete userResponse.password;
 
     return NextResponse.json(

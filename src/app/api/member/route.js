@@ -19,7 +19,7 @@ export async function GET(){
 
 
 //POST: Create new member
-export async function POST(req) {
+export async function POST(req) { 
   try {
     await connectDB();
     const body = await req.json();

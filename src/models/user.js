@@ -16,8 +16,8 @@ const userSchema = new mongoose.Schema(
 
     // only required if role = member
     memberRole: {
-      type: String,
-      enum: ["project_admin", "consultant", "contractor", "approver", "site manager", "manager", null],
+      type: mongoose.Schema.Types.ObjectId,
+      ref:"Role",
       default: null,
     },
 
