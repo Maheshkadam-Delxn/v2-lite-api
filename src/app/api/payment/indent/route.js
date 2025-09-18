@@ -1,26 +1,31 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
-import { Indent } from "@/models/payment";
+import { Indent } from "@/models/payment"; // since you export all in one file
 
-// Create indent
 export async function POST(req) {
   await connectDB();
   try {
     const body = await req.json();
     const indent = await Indent.create(body);
-    return NextResponse.json({ success: true, indent });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: true, data: indent }, { status: 201 });
+  } catch (err) {
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
 
-// List all indents
-export async function GET() {
+export async function GET(req) {
   await connectDB();
   try {
-    const indents = await Indent.find().populate("assignTo projectId");
-    return NextResponse.json({ success: true, indents });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    const url = new URL(req.url);
+    const { status, projectId } = Object.fromEntries(url.searchParams);
+
+    const query = {};
+    if (status) query.status = status;
+    if (projectId) query.projectId = projectId;
+
+    const indents = await Indent.find(query).populate("assignTo projectId");
+    return NextResponse.json({ success: true, data: indents });
+  } catch (err) {
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }

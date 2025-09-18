@@ -3,14 +3,23 @@ import mongoose, { model } from "mongoose";
 const indentSchema = new mongoose.Schema({
   indentId:{
     type:String,
+    unique: true,
     required:true 
   },
   assignTo:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"Member"
   },
-  status:{
-    type:String
+  shareTo: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Member",  
+    },
+  ],
+  status: {
+    type: String,
+    enum: ["Pending", "Approved", "Rejected", "In Progress", "Completed"], 
+    default: "Pending",
   },
   projectId:{
           type:mongoose.Schema.Types.ObjectId,
@@ -33,10 +42,13 @@ const purchaseOrderSchema = new mongoose.Schema({
   projectId:{
           type:mongoose.Schema.Types.ObjectId,
           ref:"Project"
-      }
-  // addItem:{
-
-  // }
+      },
+  addItems: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Indent",
+    },
+  ],
 });
 
 const GRNSchema = new mongoose.Schema({
@@ -101,3 +113,8 @@ const Indent =  mongoose.models.Indent || mongoose.model('Indent',indentSchema);
 const GRN =  mongoose.models.GRN || mongoose.model('GRN',GRNSchema);
 const PurchaseOrder =  mongoose.models.PurchaseOrder || mongoose.model('PurchaseOrder',purchaseOrderSchema);
 const Expense = mongoose.models.Expense || mongoose.model('Expense',expenseSchema);
+
+
+
+export { Indent, GRN, PurchaseOrder, Expense };
+
