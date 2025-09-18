@@ -1,13 +1,29 @@
 // src/app/api/auth/login/route.js
+/*
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import connectDB from "@/lib/mongoose";
 import User from "@/models/user";
 
+// Handle OPTIONS method for CORS preflight
+// export async function OPTIONS() {
+//   return NextResponse.json(
+//     {},
+//     {
+//       status: 200,
+//       headers: {
+//         'Access-Control-Allow-Origin': '*',
+//         'Access-Control-Allow-Methods': 'POST, OPTIONS',
+//         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+//       },
+//     }
+//   );
+// }
+
 export async function POST(req) {
   await connectDB();
-  console.log(" DB connection confirmed inside login API");
+  console.log("DB connection confirmed inside login API");
 
   try {
     const { email, password } = await req.json();
@@ -19,7 +35,7 @@ export async function POST(req) {
       );
     }
 
-    //  Find user by email
+    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
@@ -39,28 +55,117 @@ export async function POST(req) {
 
     const roleName = user.role?.name || "";
 
-    //  Sign JWT
+    // Sign JWT
     const token = jwt.sign(
       { id: user._id, role: roleName, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" } // token valid for 1 day
+      { expiresIn: "1d" }
     );
 
     // Hide password in response
     const userResponse = user.toObject();
     delete userResponse.password;
 
-    return NextResponse.json(
+    // Create httpOnly cookie
+    const cookie = serialize("token", token, {
+      httpOnly: true,
+      secure: true,
+      //secure: process.env.NODE_ENV === "production", // only https in prod
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24, // 1 day in seconds
+    });
+
+    const res = NextResponse.json(
       {
         success: true,
         message: "Login successful",
-        token,
+        user: userResponse, // no token here!
+      },
+      { status: 200 }
+    );
+
+    res.headers.set("Set-Cookie", cookie);
+    return res;
+  } catch (error) {
+    console.error("Login API error:", error);
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}
+*/
+// src/app/api/auth/login/route.js
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import connectDB from "@/lib/mongoose";
+import User from "@/models/user";
+
+export async function POST(req) {
+  await connectDB();
+  console.log("DB connection confirmed inside login API");
+
+  try {
+    const { email, password } = await req.json();
+
+    if (!email || !password) {
+      return NextResponse.json(
+        { success: false, error: "Email and password are required" },
+        { status: 400 }
+      );
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Invalid email or password" },
+        { status: 401 }
+      );
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return NextResponse.json(
+        { success: false, error: "Invalid email or password" },
+        { status: 401 }
+      );
+    }
+
+    const roleName = user.role?.name || "";
+
+    const token = jwt.sign(
+      { id: user._id, role: roleName, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    // Create response
+    const response = NextResponse.json(
+      {
+        success: true,
+        message: "Login successful",
         user: userResponse,
       },
       { status: 200 }
     );
+
+    // Set token in HttpOnly cookie
+    response.cookies.set("token", token, {
+      httpOnly: true, // ✅ prevents JS access
+      secure: process.env.NODE_ENV === "production", // ✅ only send over HTTPS in production
+      sameSite: "strict", // ✅ helps protect against CSRF
+      maxAge: 60 * 60 * 24, // 1 day
+      path: "/", // available throughout the app
+    });
+
+    return response;
   } catch (error) {
-    console.error(" Login API error:", error);
+    console.error("Login API error:", error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
