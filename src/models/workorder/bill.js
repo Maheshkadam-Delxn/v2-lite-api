@@ -17,7 +17,6 @@ const addDeductionSchema = new mongoose.Schema({
 const billSchema = new mongoose.Schema({
     billNo:{
         type:String,
-        required:true,
         unique:true 
     },
     workOrder:{
@@ -45,7 +44,8 @@ const billSchema = new mongoose.Schema({
     items:[addDeductionSchema],
     projectId:{
             type:mongoose.Schema.Types.ObjectId,
-            ref:"Project"
+            ref:"Project",
+            required:true
     }
 
 });

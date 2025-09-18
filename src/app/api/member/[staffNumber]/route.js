@@ -14,7 +14,7 @@ export async function GET(req,{params}){
         const member = await Member.findOne({staffNumber});
 
         if(!member){
-            return NextResponse.json({success:FontFaceSetLoadEvent,message:"Member not found"},{status:404});
+            return NextResponse.json({success:false,message:"Member not found"},{status:404});
         }
         return NextResponse.json({success:true,data:member},{status:200});
 
