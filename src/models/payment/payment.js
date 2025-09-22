@@ -116,5 +116,5 @@ const Expense = mongoose.models.Expense || mongoose.model('Expense',expenseSchem
 
 
 
-export { Indent, GRN, PurchaseOrder, Expense };
+export default { Indent, GRN, PurchaseOrder, Expense };
 
