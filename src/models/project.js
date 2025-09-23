@@ -45,11 +45,8 @@ const projectSchema = new mongoose.Schema({
     default: "planned"
   },
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  budget: { type: Number },
   tags: [{ type: String }],
-    status:{
-        type:String
-    }
+  
 },{timestamps:true});
 
 export default mongoose.models.Project || mongoose.model("Project",projectSchema);

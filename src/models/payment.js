@@ -109,6 +109,48 @@ const expenseSchema = new mongoose.Schema({
       }
 });
 
+
+
+const billPaymentSchema = new mongoose.Schema({
+  billId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  vendor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Vendor",
+    required: true,
+  },
+  amount: {
+    type: Number,
+    required: true,
+  },
+  paymentDate: {
+    type: Date,
+    required: true,
+    default: Date.now,
+  },
+  mode: {
+    type: String,
+    enum: ["Cash", "Cheque", "Bank Transfer", "UPI", "Other"],
+    required: true,
+  },
+  referenceNo: {
+    type: String, // e.g. transaction id, cheque no.
+  },
+  remarks: {
+    type: String,
+  },
+  projectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Project",
+  },
+});
+
+
+
+const BillPayment = mongoose.models.BillPayment || mongoose.model("BillPayment", billPaymentSchema);
 const Indent =  mongoose.models.Indent || mongoose.model('Indent',indentSchema);
 const GRN =  mongoose.models.GRN || mongoose.model('GRN',GRNSchema);
 const PurchaseOrder =  mongoose.models.PurchaseOrder || mongoose.model('PurchaseOrder',purchaseOrderSchema);
@@ -116,5 +158,5 @@ const Expense = mongoose.models.Expense || mongoose.model('Expense',expenseSchem
 
 
 
-export { Indent, GRN, PurchaseOrder, Expense };
+export { Indent, GRN, PurchaseOrder, Expense, BillPayment };
 

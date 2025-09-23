@@ -7,10 +7,12 @@ export async function POST(request) {
   await connectDB();
   try {
     const body = await request.json();
+    console.log("Received body:", body); //  debug
     const project = await Project.create(body);
 
     return NextResponse.json({ success: true, project });
   } catch (error) {
+    console.error("POST /api/projects error:", error); //  full error
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

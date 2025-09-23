@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongoose";
-import User from "@/models/user";
+import connectDB from "../../../../lib/mongoose";
+import User from "../../../../models/user";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongoose";
-import { Indent } from "@/models/payment"; // since you export all in one file
+import connectDB from "../../../../lib/mongoose";
+import { Indent } from "../../../../models/payment"; 
+import Member from "../../../../models/member";
+import Project from "../../../../models/project";
 
 export async function POST(req) {
   await connectDB();

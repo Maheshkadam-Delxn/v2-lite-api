@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongoose";
-import { Indent } from "@/models/payment";
+import connectDB from "../../../../../lib/mongoose";
+import { Indent } from "../../../../../models/payment";
 
 export async function GET(req, { params }) {
   await connectDB();
