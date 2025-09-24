@@ -10,15 +10,13 @@ const allowedOrigins = [
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
-// ✅ Helper function for setting CORS headers
+// Helper: set CORS headers
 function setCorsHeaders(res, origin) {
-  res.headers.set(
-    "Access-Control-Allow-Origin",
-    allowedOrigins.includes(origin) ? origin : (process.env.ALLOWED_ORIGIN || "*")
-  );
+  const allowedOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  res.headers.set("Access-Control-Allow-Origin", allowedOrigin);
   res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.headers.set("Access-Control-Allow-Credentials", "true");
+  res.headers.set("Access-Control-Allow-Credentials", "true"); // essential for cookies
   return res;
 }
 
