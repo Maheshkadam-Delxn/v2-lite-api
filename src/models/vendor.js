@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 
 const vendorSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true},
+  email: { type: String, required: true, unique: true, lowercase: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // link with auth user
   vendorCode: { type: String, required: true, unique: true },
   taxNo: { type: String, required: true },

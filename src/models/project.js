@@ -46,9 +46,7 @@ const projectSchema = new mongoose.Schema({
   },
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   tags: [{ type: String }],
-    status:{
-        type:String
-    }
+  
 },{timestamps:true});
 
 export default mongoose.models.Project || mongoose.model("Project",projectSchema);
