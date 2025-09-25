@@ -14,14 +14,29 @@ function validatePassword(password) {
 
 export async function POST(req) {
   await connectDB();
-  console.log("✅ DB connection confirmed inside register API (POST)");
+  console.log(" DB connection confirmed inside register API (POST)");
 
   try {
-    const { name, email, phone_number, password, role, memberRole } =
-      await req.json();
+    const body = await req.json();
+    console.log("📩 Incoming body:", body);
+    const { name, email, phone_number, password, role, memberRole } = body;
+    //const { name, email, phone_number, password, role, memberRole } = await req.json();
+
+    // 🟢 Debug: send request body back in response
+    const debug = {
+      rawBody: body,
+      hasName: !!body?.name,
+      hasEmail: !!body?.email,
+      hasPhone: !!body?.phone_number,
+      hasPassword: !!body?.password,
+      roleReceived: body?.role || null,
+      memberRoleReceived: body?.memberRole || null,
+    };
+    console.log("🔎 Debug payload check:", debug);
 
     // Basic validation
     if (!name || !email || !phone_number || !password) {
+      console.warn("⚠️ Missing fields in request:", { name, email, phone_number, password });
       return NextResponse.json(
         { success: false, error: "All fields are required" },
         { status: 400 }
@@ -29,6 +44,7 @@ export async function POST(req) {
     }
 
     if (!validatePassword(password)) {
+      console.warn("⚠️ Password validation failed for:", email);
       return NextResponse.json(
         {
           success: false,
@@ -42,6 +58,7 @@ export async function POST(req) {
     // Uniqueness check
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
+      console.warn("⚠️ Email already registered:", email);
       return NextResponse.json(
         { success: false, error: "Email already registered" },
         { status: 400 }
@@ -50,6 +67,7 @@ export async function POST(req) {
 
     const existingPhone = await User.findOne({ phone_number });
     if (existingPhone) {
+      console.warn("⚠️ Phone already registered:", phone_number);
       return NextResponse.json(
         { success: false, error: "Phone number already registered" },
         { status: 400 }
@@ -58,15 +76,18 @@ export async function POST(req) {
 
     // Superadmin Bootstrap
     const userCount = await User.countDocuments();
+    console.log("👥 Current user count:", userCount);
     let finalRole = role || "member";
 
     if (userCount === 0) {
       // first user becomes superadmin
       finalRole = "superadmin";
+      console.log("👑 First user detected → assigning superadmin role");
     } else if (role === "superadmin") {
       // prevent creating another superadmin
       const superAdminExists = await User.findOne({ role: "superadmin" });
       if (superAdminExists) {
+        console.warn("⚠️ Attempt to create another superadmin blocked");
         return NextResponse.json(
           { success: false, error: "Superadmin already exists" },
           { status: 400 }
@@ -77,18 +98,22 @@ export async function POST(req) {
     // Handle memberRole separately
     let memberRoleId = null;
     if (finalRole === "member" && memberRole) {
+      console.log("🔎 Looking up member role:", memberRole);
       const roleDoc = await Role.findOne({ name: memberRole });
       if (!roleDoc) {
+        console.error("❌ Member role not found in DB:", memberRole);
         return NextResponse.json(
           { success: false, error: "Member role not found" },
           { status: 404 }
         );
       }
       memberRoleId = roleDoc._id;
+      console.log("✅ Member role resolved to ID:", memberRoleId);
     }
 
     // Hash Password
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("🔑 Password hashed successfully");
 
     // Create User
     const user = await User.create({
@@ -99,6 +124,8 @@ export async function POST(req) {
       role: finalRole,        // string enum
       memberRole: memberRoleId, // only for members
     });
+    console.log("✅ User created:", { id: user._id, email: user.email, role: user.role });
+
 
     // Populate memberRole for response
     const userResponse = await user.populate("memberRole", "name permissions");
