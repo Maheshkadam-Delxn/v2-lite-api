@@ -82,10 +82,6 @@ export async function GET(request) {
 
 // /app/api/vendor/route.js
 
-import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongoose";
-import Vendor from "@/models/vendor";
-
 export async function POST(request) {
   console.log(" Vendor POST API called");
   await connectDB();
