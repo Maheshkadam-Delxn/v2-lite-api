@@ -7,13 +7,15 @@ export async function PATCH(request, { params }) {
   await connectDB();
 
   const decoded = await verifyToken(request);
-
+   
+  /*
   if (!decoded || decoded.role !== "superadmin") {
     return NextResponse.json(
       { success: false, error: "Forbidden - Superadmin only" },
       { status: 403 }
     );
   }
+  */
 
   try {
     const body = await request.json();
