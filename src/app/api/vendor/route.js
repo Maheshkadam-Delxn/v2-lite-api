@@ -10,6 +10,7 @@ export async function POST(request) {
 
   //  Pass the Next.js Request object
   const decoded = verifyToken(request);
+  console.log(decoded);
 
   if (!decoded) {
     return NextResponse.json(

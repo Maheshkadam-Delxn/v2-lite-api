@@ -13,10 +13,11 @@ function validatePassword(password) {
 }
 
 export async function POST(req) {
-  await connectDB();
+  
   console.log("✅ DB connection confirmed inside register API (POST)");
 
   try {
+    await connectDB();
     const { name, email, phone_number, password, role, memberRole } =
       await req.json();
 
