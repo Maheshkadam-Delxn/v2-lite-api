@@ -3,7 +3,7 @@ import connectDB from "@/lib/mongoose";
 //import { Indent } from "@/models/payment/payment"; // since you export all in one file
 //import connectDB from "../../../../lib/mongoose";
 import { Indent } from "../../../../models/payment"; 
-
+import Member from "../../../../models/member";
 
 export async function POST(req) {
   await connectDB();
