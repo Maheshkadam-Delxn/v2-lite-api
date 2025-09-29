@@ -23,8 +23,9 @@ const billSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"WorkOrder",
     },
-    advancePayment:{
-        type:String,
+    advancePayment:{ 
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"AdvancePayment"
     },
     remark:{
         type:String 

@@ -5,7 +5,8 @@ import { Indent } from "@/models/payment";
 export async function GET(req, { params }) {
   await connectDB();
   try {
-    const indent = await Indent.findById(params.id).populate("assignTo projectId");
+    const indent = await Indent.findById(params.id)
+    //.populate("assignTo projectId");
     if (!indent) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json({ success: true, data: indent });
   } catch (err) {

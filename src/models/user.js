@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema(
     // only required if role = member
     memberRole: {
       type: mongoose.Schema.Types.ObjectId,
-      ref:"Role",
+      ref:"Member",
       default: null,
     },
 

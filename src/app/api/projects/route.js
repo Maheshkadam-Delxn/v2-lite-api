@@ -1,11 +1,22 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
 import Project from "@/models/project";
+import { verifyToken } from "@/lib/jwt";
 
 // ✅ 6.1 Create new project
 export async function POST(request) {
-  await connectDB();
+  
   try {
+
+    const decoded = verifyToken(request);
+      if(!decoded){
+        return NextResponse.json(
+          {success:false,error:"Unauhorized"},
+          {status:401}
+        );
+      }
+
+      await connectDB();
     const body = await request.json();
     console.log("Received body:", body); //  debug
     const project = await Project.create(body);
@@ -19,8 +30,18 @@ export async function POST(request) {
 
 // ✅ 6.2 Project listing (with filters)
 export async function GET(request) {
-  await connectDB();
+  
   try {
+
+    const decoded = verifyToken(request);
+      if(!decoded){
+        return NextResponse.json(
+          {success:false,error:"Unauhorized"},
+          {status:401}
+        );
+      }
+
+      await connectDB();
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const format = searchParams.get("format"); // grid or list (frontend choice)

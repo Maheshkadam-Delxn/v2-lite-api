@@ -5,6 +5,8 @@ import connectDB from "@/lib/mongoose";
 import Vendor from "@/models/vendor";
 import { verifyToken } from "@/lib/jwt";
 
+
+/*
 export async function POST(request) {
   await connectDB();
 
@@ -33,6 +35,7 @@ export async function POST(request) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
+*/
 
 export async function GET(request) {
   await connectDB();
@@ -75,3 +78,29 @@ export async function GET(request) {
 
 
 
+
+
+
+// /app/api/vendor/route.js
+
+export async function POST(request) {
+  console.log(" Vendor POST API called");
+  await connectDB();
+  console.log(" DB connection established (vendor API)");
+
+  try {
+    const body = await request.json();
+    console.log(" Request body:", body);
+
+    const vendor = await Vendor.create(body);
+    console.log(" Vendor created successfully:", vendor);
+
+    return NextResponse.json({ success: true, data: vendor });
+  } catch (err) {
+    console.error("Vendor POST error:", err);
+    return NextResponse.json(
+      { success: false, error: err.message },
+      { status: 500 }
+    );
+  }
+}

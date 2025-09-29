@@ -2,9 +2,18 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
 import WorkOrder from '@/models/workorder/workorder'
 import Project from '@/models/project'
+import { verifyToken } from "@/lib/jwt";
 
-export async function GET(){
+export async function GET(req){
     try{
+
+        const decoded = verifyToken(req);
+          if(!decoded){
+            return NextResponse.json(
+              {success:false,error:"Unauhorized"},
+              {status:401}
+            );
+          }
 
         await connectDB();
 
@@ -30,6 +39,14 @@ export async function GET(){
 
 export async function POST(req){
     try{
+
+        const decoded = verifyToken(req);
+          if(!decoded){
+            return NextResponse.json(
+              {success:false,error:"Unauhorized"},
+              {status:401}
+            );
+          }
 
         await connectDB();
 

@@ -5,6 +5,7 @@ import connectDB from "@/lib/mongoose";
 import { Indent } from "../../../../models/payment"; 
 
 
+
 export async function POST(req) {
   await connectDB();
   try {
@@ -19,14 +20,14 @@ export async function POST(req) {
 export async function GET(req) {
   await connectDB();
   try {
-    const url = new URL(req.url);
-    const { status, projectId } = Object.fromEntries(url.searchParams);
+    // const url = new URL(req.url);
+    // const { status, projectId } = Object.fromEntries(url.searchParams);
 
-    const query = {};
-    if (status) query.status = status;
-    if (projectId) query.projectId = projectId;
+    // const query = {};
+    // if (status) query.status = status;
+    // if (projectId) query.projectId = projectId;
 
-    const indents = await Indent.find(query).populate("assignTo projectId");
+    const indents = await Indent.find().populate("assignTo projectId");
     return NextResponse.json({ success: true, data: indents });
   } catch (err) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });

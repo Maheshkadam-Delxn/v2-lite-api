@@ -6,10 +6,10 @@ import Project from "@/models/project";
 function getInitials(name){
     return name 
     .split(" ")
-    .map(word => word[0].toUpperCase())
+    .map(word => word[0])
     .join("")
-    .slice(0,2);
-}
+    .toUpperCase();
+} 
 
 export async function POST(req){
     try{

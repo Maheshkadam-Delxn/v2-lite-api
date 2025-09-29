@@ -5,8 +5,16 @@ import Project from "@/models/project"
 import { verifyToken } from "@/lib/jwt";
 
 
-export async function GET(){
+export async function GET(req){
     try{
+
+        const decoded = verifyToken(req);
+  if(!decoded){
+    return NextResponse.json(
+      {success:false,error:"Unauhorized"},
+      {status:401}
+    );
+  }
         await connectDB();
 
         const body = await AdvancePayment.find();
@@ -33,6 +41,14 @@ export async function GET(){
 
 export async function POST(req){
     try{
+
+        const decoded = verifyToken(req);
+          if(!decoded){
+            return NextResponse.json(
+              {success:false,error:"Unauhorized"},
+              {status:401}
+            );
+          }
         await connectDB();
 
         const body = await req.json();

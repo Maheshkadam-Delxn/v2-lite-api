@@ -77,13 +77,13 @@ export async function GET(req){
 //POST: Create new member
 export async function POST(req) { 
 
-  const decoded = verifyToken(req);
-  if(!decoded){
-    return NextResponse.json(
-      {success:false,error:"Unauhorized"},
-      {status:401}
-    );
-  }
+  // const decoded = verifyToken(req);
+  // if(!decoded){
+  //   return NextResponse.json(
+  //     {success:false,error:"Unauhorized"},
+  //     {status:401}
+  //   );
+  // }
 
   try {
     await connectDB();
@@ -97,7 +97,7 @@ export async function POST(req) {
     }
 
     const newMember = await Member.create({
-      userId:decoded.id,
+      //userId:decoded.id,
       ...body,
     });
 

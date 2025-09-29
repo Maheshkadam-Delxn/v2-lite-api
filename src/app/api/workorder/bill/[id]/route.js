@@ -73,7 +73,7 @@ export async function DELETE(req,{params}){
 
         await connectDB();
 
-        const deleteBill = await Bill.findByIdAndDelete(params);
+        const deleteBill = await Bill.findByIdAndDelete(id);
 
         if(!deleteBill){
             return NextResponse.json(

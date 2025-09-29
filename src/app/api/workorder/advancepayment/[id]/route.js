@@ -1,9 +1,19 @@
 import { NextResponse } from "next/server";
 import AdvancePayment from "@/models/workorder/advancePayment"
 import connectDB from "@/lib/mongoose";
+import { verifyToken } from "@/lib/jwt";
 
 export async function GET(req,{params}){
     try{
+
+        const decoded = verifyToken(req);
+                  if(!decoded){
+                    return NextResponse.json(
+                      {success:false,error:"Unauhorized"},
+                      {status:401}
+                    );
+                  }
+
         const {id} = await params;
 
         await connectDB();
@@ -28,8 +38,16 @@ export async function GET(req,{params}){
     }
 }
 
-export async function PUT(req,{parmas}){
+export async function PUT(req,{params}){
     try{
+
+        const decoded = verifyToken(req);
+                  if(!decoded){
+                    return NextResponse.json(
+                      {success:false,error:"Unauhorized"},
+                      {status:401}
+                    );
+                  }
         const {id} = await params;
         await connectDB();
 

@@ -14,7 +14,7 @@ export async function POST(req){
                 {success:false,error:"All fields are required"},
                 {status:400}
             )
-        }
+        } 
 
         const dashboardPermission = new Dashboard(body);
         await dashboardPermission.save();

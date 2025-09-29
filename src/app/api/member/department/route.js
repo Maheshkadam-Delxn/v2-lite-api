@@ -3,48 +3,21 @@ import department from "@/models/department";
 import { NextResponse } from "next/server";
 import { verifyToken } from "@/lib/jwt";
 
-function checkAuth(req){
-    const authHeader = req.headers.get("authorization");
-    if(!authHeader?.startWith("Bearer ")){
-        return {
-            error:NextResponse.json(
-                {success:false,message:"Unauthorized: no token"},
-                {status:401}
-            )
-        };
-    }
-
-    const token = authHeader.split(" ")[1];
-    const decoded = verifyToken(token);
-
-    if(!decoded){
-        return {
-            error:NextResponse.json(
-                {success:false,message:"Unauthorized:Invalid token"},
-                {status:401}
-            )
-        }
-    }
-
-        if(!["admin","superadmin"].includes(decoded.role)){
-            return {
-                error:NextResponse.json(
-                    {success:false,message:"Forbidden:Insufficient permission"},
-                    {status:403}
-                )
-            };
-        }
-
-
-        return {user:decoded};
-    }
 
 
 export async function POST(req){
 
-    const auth = checkAuth(req);
-    if(auth.error) return auth.error;
+    // const auth = checkAuth(req);
+    // if(auth.error) return auth.error;
     try{
+
+        const decoded = verifyToken(req);
+          if(!decoded){
+            return NextResponse.json(
+              {success:false,error:"Unauhorized"},
+              {status:401}
+            );
+          }
         connectDB();
         const body = await req.json();
 
