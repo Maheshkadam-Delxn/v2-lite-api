@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
 import { PurchaseOrder } from "@/models/payment";
+import "@/models/vendor";
+import "@/models/project";
+import { Indent } from "@/models/payment";
+
 
 // ✅ Create Purchase Order
 export async function POST(request) {

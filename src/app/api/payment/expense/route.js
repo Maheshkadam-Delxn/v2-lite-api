@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
 import { Expense } from "@/models/payment";
+import Vendor from  "@/models/vendor";
 
 // ✅ Create Expense
 export async function POST(req) {
