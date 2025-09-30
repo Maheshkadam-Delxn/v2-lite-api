@@ -47,7 +47,7 @@ const memberSchema =  new mongoose.Schema({
   status:{
     type: String,
     enum:["Active" , "Inactive"],
-    default:Active
+    default:"Active"
 } 
 }, { timestamps: true });
 
