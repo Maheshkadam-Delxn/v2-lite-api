@@ -51,8 +51,8 @@ export async function POST(req) {
     const response = NextResponse.json(
       {
         success: true,
-        message: "Login successful",
-        token, // ✅ return token in response body also
+        message: "Login successful for localhost",
+        token, 
         user: userResponse,
       },
       { status: 200 }
@@ -62,7 +62,7 @@ export async function POST(req) {
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
       maxAge: 60 * 60 * 24,
       path: "/",
     });
@@ -77,3 +77,5 @@ export async function POST(req) {
   }
 }
 
+
+ 

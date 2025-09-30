@@ -64,6 +64,13 @@
 //   matcher: "/api/:path*",
 // };
 
+
+
+
+
+
+
+
 // middleware.js
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
@@ -78,7 +85,8 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET);
  
 // Helper: set CORS headers
 function setCorsHeaders(res, origin) {
-  // const allowedOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  
+  
   res.headers.set("Access-Control-Allow-Origin", "*");
   res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -129,3 +137,9 @@ export async function middleware(req) {
 export const config = {
   matcher: "/api/:path*",
 };
+
+
+
+
+
+
