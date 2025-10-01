@@ -9,6 +9,10 @@ const userSchema = new mongoose.Schema(
     isVerified: { type: Boolean, default: false }, // OTP verification flag
     otp: { type: String }, // temporary field
     otpExpiry: { type: Date }, // OTP expiry time
+
+    // Forgot-password flow
+    forgotPasswordOTP: { type: String }, // OTP for reset password
+    forgotPasswordExpiry: { type: Date }, // expiry for reset OTP
   },
   { timestamps: true }
 );
