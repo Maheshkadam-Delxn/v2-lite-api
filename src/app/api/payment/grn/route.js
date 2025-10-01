@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
 import { GRN } from "@/models/payment";
+import "@/models/project";
 
 // ✅ Create GRN
 export async function POST(req) {

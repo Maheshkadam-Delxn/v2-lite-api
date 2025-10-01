@@ -47,11 +47,12 @@ export async function POST(req) {
     const userResponse = user.toObject();
     delete userResponse.password;
 
-    // Create response
+    // Create response with token in body
     const response = NextResponse.json(
       {
         success: true,
-        message: "Login successful",
+        message: "Login successful for localhost",
+        token, 
         user: userResponse,
       },
       { status: 200 }
@@ -59,11 +60,11 @@ export async function POST(req) {
 
     // Set token in HttpOnly cookie
     response.cookies.set("token", token, {
-      httpOnly: true, // ✅ prevents JS access
-      secure: process.env.NODE_ENV === "production", // ✅ only send over HTTPS in production
-      sameSite: "strict", // ✅ helps protect against CSRF
-      maxAge: 60 * 60 * 24, // 1 day
-      path: "/", // available throughout the app
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      maxAge: 60 * 60 * 24,
+      path: "/",
     });
 
     return response;
@@ -75,4 +76,6 @@ export async function POST(req) {
     );
   }
 }
-//sample
+
+
+ 

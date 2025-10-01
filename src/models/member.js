@@ -44,6 +44,11 @@ const memberSchema =  new mongoose.Schema({
   // For org chart
   manager: { type: mongoose.Schema.Types.ObjectId, ref: "Member" },
   projects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
+  status:{
+    type: String,
+    enum:["Active" , "Inactive"],
+    default:"Active"
+} 
 }, { timestamps: true });
 
 export default mongoose.models.Member || mongoose.model("Member", memberSchema);
