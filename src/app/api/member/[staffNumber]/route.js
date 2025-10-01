@@ -4,39 +4,44 @@ import Member from "@/models/member";
 import { verifyToken } from "@/lib/jwt";
 
 
-function checkAuth(req){
-  const authHeader = req.headers.get("authorization");
-  if(!authHeader?.startsWith("Bearer")){
-    return { error: NextResponse.json({success:false,message:"Unauthorized:No token"},{status:401})}
-  }
+// function checkAuth(req){
+//   const authHeader = req.headers.get("authorization");
+//   if(!authHeader?.startsWith("Bearer")){
+//     return { error: NextResponse.json({success:false,message:"Unauthorized:No token"},{status:401})}
+//   }
 
-  const token = authHeader.split(" ")[1];
-  const decoded = verifyToken(token);
+//   const token = authHeader.split(" ")[1];
+//   const decoded = verifyToken(token);
 
-  if(!decoded){
-    return {error:NextResponse.json(
-      {success:false,message:"Unauthorized"},
-      {status:401}
-    )}
-  }
+//   if(!decoded){
+//     return {error:NextResponse.json(
+//       {success:false,message:"Unauthorized"},
+//       {status:401}
+//     )}
+//   }
 
-  if(!["admin","superadmin"].includes(decoded.role)){
-    return {
-      error:NextResponse.json(
-        {success:false,message:"Forbidden:Insufficient permission"},
-        {status:403}
-      )
-    }
-  }
+//   if(!["admin","superadmin"].includes(decoded.role)){
+//     return {
+//       error:NextResponse.json(
+//         {success:false,message:"Forbidden:Insufficient permission"},
+//         {status:403}
+//       )
+//     }
+//   }
 
-  return {user:decoded};
-}
+//   return {user:decoded};
+// }
 
 //GET: Fetch single member byID
 export async function GET(req,{params}){
 
-  const auth = checkAuth(req);
-  if(auth.error) return auth.error;
+  const decoded = verifyToken(req);
+  if(!decoded){
+    return NextResponse.json(
+      {success:false,message:"Unauthorized"},
+      {status:401}
+    );
+  }
 
     try{
         await connectDB();
@@ -62,8 +67,14 @@ export async function GET(req,{params}){
 
 export async function PUT(req, { params }) {
 
-  const auth = checkAuth(req);
-  if(auth.error) return auth.error;
+  const decoded = verifyToken(req);
+  if(!decoded){
+    return NextResponse.json(
+      {success:false,message:"Unauthorized"},
+      {status:401}
+    );
+  }
+
   try {
     await connectDB();
 
@@ -107,8 +118,13 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
 
-  const auth = checkAuth(req);
-  if(auth.error) return auth.error;
+ const decoded = verifyToken(req);
+  if(!decoded){
+    return NextResponse.json(
+      {success:false,message:"Unauthorized"},
+      {status:401}
+    );
+  }
   try {
     await connectDB();
 
