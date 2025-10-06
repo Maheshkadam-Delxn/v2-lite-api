@@ -25,6 +25,7 @@ export function verifyToken(token) {
 
 export function verifyToken(request) {
   // request must be the Next.js Request object
+  console.log('verifyToken called with request:', !!request, 'headers:', !!request?.headers);
   const authHeader = request.headers.get("authorization");
   console.log("Auth header:", authHeader);
 
