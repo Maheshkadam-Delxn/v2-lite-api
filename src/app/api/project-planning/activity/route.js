@@ -49,7 +49,7 @@ export async function GET(req){
         if(!decoded){
             return NextResponse.json(
                 {success:false,message:"Unauthorized"},
-                {status:404}
+                {status:401}
             );
         }
 
@@ -60,7 +60,7 @@ export async function GET(req){
 
         if(!body){
             return NextResponse.json(
-                {success:false,message:"Activity not found"},
+                {success:true,message:"Activity not found"},
                 {status:404}
             );
         }

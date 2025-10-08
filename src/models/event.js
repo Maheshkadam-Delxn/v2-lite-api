@@ -12,7 +12,7 @@ const eventSchema = new mongoose.Schema({
     },
     module:{
         type:String,
-        required:true 
+        
     },
     actionType:{
         type:String,

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
-import File from "@/models/project-resources/file";
+import { GRN } from "@/models/payment";
 import { verifyToken } from "@/lib/jwt";
 
-export async function GET(req){
+export async function DELETE(req,{params}){
     const decoded = await verifyToken(req);
+
     if(!decoded){
         return NextResponse.json(
             {success:false,error:"Unauthorized"},
@@ -15,17 +16,19 @@ export async function GET(req){
     try{
         await connectDB();
 
-        const files = await File.find();
+        const {id} = await params;
 
-        if(!files){
+        const deleteGRN = await GRN.findByIdAndDelete(id);
+
+        if(!deleteGRN){
             return NextResponse.json(
-                {success:false,message:"No files in database"},
-                {status:404},
+                {success:false,message:"COuld not delete GRN"},
+                {status:404}
             );
         }
 
         return NextResponse.json(
-            {success:true,data:files,message:"Files fetched successfully"},
+            {success:true,message:"GRN deleted successfully"},
             {status:200}
         );
     }catch(error){
