@@ -17,7 +17,8 @@ export async function GET(req){
 
         await connectDB();
 
-        const body = await WorkOrder.find();
+        const body = await WorkOrder.find()
+        .populate('vendor',"name");
 
         if(!body){
             return NextResponse.json(
