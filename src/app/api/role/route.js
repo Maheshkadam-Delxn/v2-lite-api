@@ -1,31 +1,28 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
 import Role from "@/models/role";
+import { verifyToken } from "@/lib/jwt";
 
 // POST: Create a new role
 export async function POST(req) {
+
+  const decoded = verifyToken(req);
+  if(!decoded){
+    NextResponse.json(
+      {success:false,error:"Unauthorized"},
+      {status:404} 
+    );
+  }
+
   await connectDB();
-    const { name, permissions } = await req.json();
+    
   try {
 
+    const body = await req.json();
 
-    if (!name || !Array.isArray(permissions)) {
-      return NextResponse.json(
-        { success: false, error: "Role name and permissions array are required" },
-        { status: 400 }
-      );
-    }
+    const {name,keyName} = body;
 
-    // Check if role already exists
-    const existingRole = await Role.findOne({ name });
-    if (existingRole) {
-      return NextResponse.json(
-        { success: false, error: "Role already exists" },
-        { status: 400 }
-      );
-    }
-
-    const role = await Role.create({ name, permissions });
+    const role = await Role.create({ name, keyName });
 
     return NextResponse.json(
       { success: true, message: "Role created successfully", role },

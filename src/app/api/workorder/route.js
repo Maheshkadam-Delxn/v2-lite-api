@@ -3,6 +3,8 @@ import connectDB from "@/lib/mongoose";
 import WorkOrder from '@/models/workorder/workorder'
 import Project from '@/models/project'
 import { verifyToken } from "@/lib/jwt";
+import "@/models/vendor";
+import vendor from "@/models/vendor";
 
 export async function GET(req){
     try{
@@ -17,8 +19,7 @@ export async function GET(req){
 
         await connectDB();
 
-        const body = await WorkOrder.find()
-        .populate('vendor',"name");
+        const body = await WorkOrder.find().populate("vendor","name"); 
 
         if(!body){
             return NextResponse.json(
