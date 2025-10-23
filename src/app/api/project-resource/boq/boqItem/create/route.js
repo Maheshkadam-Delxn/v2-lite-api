@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
-import BOQ from "@/models/boq";
-import BOQItem from "@/models/boqItem";
+import BOQ from "@/models/project-resources/boq";
+import BOQItem from "@/models/project-resources/boqItem";
 import { verifyToken } from "@/lib/jwt";
 
 export async function POST(req) {
