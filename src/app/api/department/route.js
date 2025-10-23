@@ -39,7 +39,7 @@ export async function POST(request) {
     }
 
     const newDepartment = await Department.create({
-      departmentName: body.departmentName,
+      departmentName: body.name,
     });
 
     return NextResponse.json(
