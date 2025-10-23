@@ -2,26 +2,6 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
 import { Expense } from "@/models/payment";
 import { verifyToken } from "@/lib/jwt";
-import { z } from "zod";
-
-const expenseSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  date: z.string().min(1, "Date is required"),
-  voucherNo: z.string().optional(),
-  amount: z.number().positive("Amount must be positive"),
-  vendor: z.string().optional(),
-  category: z.string().min(1, "Category is required"),
-  description: z.string().optional(),
-  file: z
-    .array(
-      z.object({
-        name: z.string(),
-        path: z.string(),
-      })
-    )
-    .optional(),
-  projectId: z.string().min(1, "Project ID is required"),
-});
 
 export async function POST(req) {
   const decoded = await verifyToken(req);
@@ -36,10 +16,27 @@ export async function POST(req) {
     await connectDB();
     const body = await req.json();
 
-    // ✅ Validate body against schema
-    const validatedData = expenseSchema.parse(body);
+    // ✅ Basic manual validation (optional, not strict like Zod)
+    if (!body.title || !body.date || !body.category || !body.projectId) {
+      return NextResponse.json(
+        { success: false, message: "Missing required fields" },
+        { status: 400 }
+      );
+    }
 
-    const expense = new Expense(validatedData);
+    // ✅ Create and save expense
+    const expense = new Expense({
+      title: body.title,
+      date: body.date,
+      voucherNo: body.voucherNo,
+      amount: body.amount,
+      vendor: body.vendor,
+      category: body.category,
+      description: body.description,
+      file: body.file,
+      projectId: body.projectId,
+    });
+
     await expense.save();
 
     return NextResponse.json(
@@ -47,12 +44,6 @@ export async function POST(req) {
       { status: 201 }
     );
   } catch (error) {
-    if (error.name === "ZodError") {
-      return NextResponse.json(
-        { success: false, error: error.errors },
-        { status: 400 }
-      );
-    }
     console.error("Expense creation failed:", error);
     return NextResponse.json(
       { success: false, message: "Failed to create expense", error: error.message },
