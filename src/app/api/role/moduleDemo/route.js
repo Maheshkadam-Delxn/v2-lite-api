@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import Module from "@/models/module";
+import ModuleDemo from "@/models/module";
 
 export  async function POST(req){
     try{
         const body = await req.json();
 
-        const module = await Module.create(body);
+        const moduledemo = await ModuleDemo.create(body);
 
         return NextResponse.json(
             {success:true,message:"Module created"},
