@@ -15,15 +15,11 @@ export async function POST(req) {
     const { name, type, category, sharedTo, description, projectId } = body;
 
     console.log("shraedto",sharedTo);
-     /*
+     
     if (!projectId || !name || !type)
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
+    const boq = await BOQ.create({ name, type, category, sharedId, description, projectId });
     
-    const boq = await BOQ.create({ name, type, category, sharedTo, description, projectId });
-     */
-    console.log("111111111111");
-    const boq = await BOQ.create({ name, type, category,  description, projectId },[sharedTo]);
-    console.log("22222222");
     return NextResponse.json({ success: true, data: boq });
     
   } 

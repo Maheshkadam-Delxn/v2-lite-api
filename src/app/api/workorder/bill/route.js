@@ -2,25 +2,28 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
 import Bill from '@/models/workorder/bill'
 import Project from "@/models/project";
-
-function getInitials(name){
-    return name 
-    .split(" ")
-    .map(word => word[0])
-    .join("")
-    .toUpperCase();
-} 
+import { verifyToken } from "@/lib/jwt";
+import WorkOrder from "@/models/workorder/workorder"
+import AdvancePayment from "@/models/workorder/advancePayment";
 
 export async function POST(req){
+
+    const decoded = verifyToken(req);
+    if(!decoded){
+        return NextResponse.json(
+            {success:false,error:"Unauthorized"},
+            {status:404}
+        );
+    }
     try{
         await connectDB();
 
         const body = await req.json();
-        const {projectId,...billData} = body;
+        const {projectId,workOrder,advancePayment,items=[],remark} = body;
 
-        if(!projectId){
+        if(!projectId || !workOrder){
             return NextResponse.json(
-                {success:false,message:"Project Id is required"},
+                {success:false,message:"Project Id and workorder is required"},
                 {status:400}
             );
         }
@@ -33,22 +36,59 @@ export async function POST(req){
             );
         }
 
-        const inintails = getInitials(project.name);
+        const workorder = await WorkOrder.findById(workOrder);
+        if(!workorder){
+            return NextResponse.json(
+                {success:false,message:"Work order not found"},
+                {status:404}
+            );
+        }
+
+        
         const code = project.code;
 
         const billCount = await Bill.countDocuments({projectId});
 
         const serial = String(billCount+1).padStart(5,"0");
-        const billNo = `${inintails}${code}-BILL-${serial}`;
+        const billNo = `${code}-BILL-${serial}`;
+
+        const grossAmount = workorder.totalAmount || 0;
+        const retentionAmount = (grossAmount*(workorder.retentionPercentage || 0))/100;
+        const taxAmount = (grossAmount *(workorder.taxPercentage || 0))/100;
+
+        const deductionAmount  = items.reduce((sum,d)=>sum+(Number(d.amount) || 0),0);
+
+        let advanceUsed = 0;
+        if(advancePayment){
+            const advance = await AdvancePayment.findById(advancePayment);
+            if(advance){
+                advanceUsed = advance.amount || 0;
+                const newStatus = advanceUsed >= grossAmount ? "fully recovered" : "partailly";
+                await AdvancePayment.findByIdAndUpdate(advancePayment,{
+                    paymentStatus:newStatus,
+                })
+            }
+        }
+
+        const netPayment = grossAmount - retentionAmount - deductionAmount - advanceUsed + taxAmount;
+
 
         const bill = await Bill.create({
-            ...billData,
+           
             billNo,
-            projectId
+            projectId,
+            workOrder:workorder,
+            advancePayment:advancePayment || null,
+            taxPercentage:workorder.taxPercentage,
+            retentionAmount:retentionAmount,
+            deductionAmount,
+            netPayment,
+            items,
+            remark 
         });
 
         return NextResponse.json(
-            {success:true,data:bill},
+            {success:true,data:bill,message:"Bill created successfully"},
             {status:201}
         )
     }catch(error){
@@ -60,6 +100,14 @@ export async function POST(req){
 }
 
 export async function GET(req){
+    const decoded = verifyToken(req);
+    if(!decoded){
+        return NextResponse.json(
+            {success:false,error:"Unauthorized"},
+            {status:404}
+        );
+    }
+
      try{
         await connectDB();
 

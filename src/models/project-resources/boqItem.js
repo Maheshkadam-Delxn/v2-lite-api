@@ -7,7 +7,7 @@ const BOQItemSchema = new mongoose.Schema({
         required:true
     },
     itemNo:{
-        type:Number,
+        type:String,
         required:true 
     },
     quantity:{
@@ -41,4 +41,4 @@ const BOQItemSchema = new mongoose.Schema({
     }
 },{timestamps:true});
 
-export default mongoose.models.BOQIem || mongoose.model("BOQItem",BOQItemSchema);
+export default mongoose.models.BOQItem || mongoose.model("BOQItem",BOQItemSchema);

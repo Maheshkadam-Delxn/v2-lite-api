@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import Module from "@/models/module";
+import connectDB from "@/lib/mongoose";
 
 export  async function POST(req){
     try{
+        await connectDB();
         const body = await req.json();
 
         const module = await Module.create(body);

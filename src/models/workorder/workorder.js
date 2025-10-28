@@ -3,22 +3,25 @@ import mongoose from "mongoose";
 
 
 const WorkOrderItemSchema = new mongoose.Schema({
-    workOrderType:{
+    workOrderType:{ 
         type:String,
         enum:["BOQ","Non-BOQ"],
     
     },
     boqref:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"BOQ"
+        ref:"BOQ",
+        required:function(){
+            return this.workOrderType === "BOQ";
+        }
     },
 
     itemNo:{type:String},
     unit:{type:String},
-    rate:{type:Number},
-    quantity:{type:Number},
-    total:{type:Number}
-});
+    rate:{type:Number,default:0},
+    quantity:{type:Number,default:0},
+    total:{type:Number,default:0}
+},{_id:false});
 
 const WorkOrderSchema = new mongoose.Schema({
     workOrderNo:{
@@ -31,8 +34,8 @@ const WorkOrderSchema = new mongoose.Schema({
         ref:"Vendor"
     },
     date:{
-        type:String,
-
+        type:Date,
+        default:Date.now()
     },
     retentionPercentage:{
         type:Number,
@@ -42,8 +45,25 @@ const WorkOrderSchema = new mongoose.Schema({
         type:Number,
         default:0
     },
+    retentionAmount:{
+        type:Number,
+        default:0
+    },
+    taxAmount:{
+        type:Number,
+        default:0
+    },
+    paidAmount:{
+        type:Number,
+        default:0 
+    },
+    netPayable:{
+        type:Number,
+        default:0 
+    },
     advancePayment:{
-        type:Number
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"AdvancePayment"
     },
     termsCondition:{
         type:String 
@@ -54,7 +74,7 @@ const WorkOrderSchema = new mongoose.Schema({
             type:mongoose.Schema.Types.ObjectId,
             ref:"Project"
     }
-});
+},{timestamps:true});
 
 
 export default mongoose.models.WorkOrder || mongoose.model("WorkOrder",WorkOrderSchema);
