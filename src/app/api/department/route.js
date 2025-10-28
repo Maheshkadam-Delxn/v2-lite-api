@@ -31,7 +31,7 @@ export async function POST(request) {
     await connectDB();
     const body = await request.json();
 
-    if (!body.departmentName) {
+    if (!body.name) {
       return NextResponse.json(
         { success: false, error: "departmentName is required" },
         { status: 400 }
