@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const moduleSchema = new mongoose.Schema({
+const moduleDemoSchema = new mongoose.Schema({
     name:{
         type:String,
         required:true,
@@ -8,4 +8,4 @@ const moduleSchema = new mongoose.Schema({
     } 
 })
 
-export default mongoose.models.Module || mongoose.model("Module",moduleSchema);
+export default mongoose.models.ModuleDemo || mongoose.model("ModuleDemo",moduleDemoSchema);

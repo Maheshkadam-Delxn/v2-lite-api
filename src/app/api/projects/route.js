@@ -33,25 +33,15 @@ export async function GET(request) {
   
   try {
 
-    const decoded = verifyToken(request);
-      if(!decoded){
-        return NextResponse.json(
-          {success:false,error:"Unauhorized"},
-          {status:401}
-        );
-      }
-
+   
       await connectDB();
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status");
-    const format = searchParams.get("format"); // grid or list (frontend choice)
+   // grid or list (frontend choice)
 
-    let query = {};
-    if (status) query.status = status;
+    
 
-    const projects = await Project.find(query).sort({ createdAt: -1 });
+    const projects = await Project.find();
 
-    return NextResponse.json({ success: true, projects, format });
+    return NextResponse.json({ success: true, projects });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
