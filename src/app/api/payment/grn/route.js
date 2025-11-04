@@ -6,9 +6,27 @@ import "@/models/project";
 // ✅ Create GRN
 export async function POST(req) {
   await connectDB();
+
   try {
     const body = await req.json();
-    const grn = await GRN.create(body);
+
+    // ✅ Find last GRN to generate next grnId
+    const lastGRN = await GRN.findOne().sort({ createdAt: -1 }).lean();
+
+    let nextNumber = 1;
+    if (lastGRN && lastGRN.grnId) {
+      const lastNumber = parseInt(lastGRN.grnId.replace(/\D/g, ""), 10);
+      nextNumber = lastNumber + 1;
+    }
+
+    // ✅ Generate new GRN ID
+    const nextGrnId = `GRN-${nextNumber.toString().padStart(3, "0")}`;
+
+    // ✅ Create GRN with auto-generated ID
+    const grn = await GRN.create({
+      ...body,
+      grnId: nextGrnId,
+    });
 
     return NextResponse.json({
       success: true,
@@ -23,6 +41,7 @@ export async function POST(req) {
     );
   }
 }
+
 
 // ✅ Get all GRNs
 export async function GET() {

@@ -97,3 +97,55 @@ export async function PUT(req, { params }) {
   }
 }
 
+
+
+
+// DELETE: Remove vendor by ID
+import { NextResponse } from "next/server";
+import connectDB from "@/lib/mongoose";
+import Vendor from "@/models/vendor";
+import { verifyToken } from "@/lib/jwt";
+
+export async function DELETE(request, { params }) {
+  await connectDB();
+
+  try {
+    // ✅ Verify token
+    const decoded = await verifyToken(request);
+
+    if (!decoded || decoded.role !== "admin") {
+      return NextResponse.json(
+        { success: false, error: "Forbidden - Admin only" },
+        { status: 403 }
+      );
+    }
+
+    const { id } = params;
+    console.log("🗑 Attempting to delete vendor:", id);
+
+    const deletedVendor = await Vendor.findByIdAndDelete(id);
+
+    if (!deletedVendor) {
+      return NextResponse.json(
+        { success: false, error: "Vendor not found" },
+        { status: 404 }
+      );
+    }
+
+    console.log("✅ Vendor deleted:", deletedVendor._id);
+
+    return NextResponse.json({
+      success: true,
+      message: "Vendor deleted successfully",
+      data: deletedVendor,
+    });
+  } catch (error) {
+    console.error("❌ Vendor DELETE API error:", error);
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+

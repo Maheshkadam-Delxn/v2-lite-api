@@ -1,51 +1,86 @@
-// app/api/vendor/[id]/documents/route.js
 import { NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import path from "path";
 import connectDB from "@/lib/mongoose";
 import Vendor from "@/models/vendor";
 import { verifyToken } from "@/lib/jwt";
+import fs from "fs";
+import path from "path";
 
+// ✅ Vendor uploads their own document
 export async function POST(request, { params }) {
+  console.log("===== Vendor Document Upload API Called =====");
+
   await connectDB();
+  console.log("✅ Database connected");
 
   try {
-    // ✅ unwrap params in Next.js 15
-    const { id } = await params;
+    const decoded = await verifyToken(request);
+    console.log("🔐 Decoded JWT:", decoded);
 
-    // ✅ Verify JWT
-    const decoded = verifyToken(request);
-    if (!decoded) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-    }
+    const { id } = params;
+    console.log("📌 Vendor ID from URL params:", id);
 
-    // ✅ Parse multipart form
     const formData = await request.formData();
     const file = formData.get("file");
+    console.log("📂 Received file from formData:", file?.name || "No file");
 
     if (!file) {
-      return NextResponse.json({ success: false, error: "No file uploaded" }, { status: 400 });
+      console.warn("⚠️ No file uploaded");
+      return NextResponse.json(
+        { success: false, error: "No file uploaded" },
+        { status: 400 }
+      );
     }
 
-    // ✅ Save file locally
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    if (file.type !== "application/pdf") {
+      console.warn("⚠️ Invalid file type:", file.type);
+      return NextResponse.json(
+        { success: false, error: "Only PDF files are allowed" },
+        { status: 400 }
+      );
+    }
 
-    const uploadDir = path.join(process.cwd(), "uploads");
-    const filePath = path.join(uploadDir, `${Date.now()}-${file.name}`);
-    await writeFile(filePath, buffer);
+    // Save file to /public/uploads/vendor
+    const uploadDir = path.join(process.cwd(), "public", "uploads", "vendor");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+      console.log("📁 Created upload directory:", uploadDir);
+    }
 
-    // ✅ Update vendor with document info
-    const vendor = await Vendor.findByIdAndUpdate(
-      id,
-      { $push: { documents: { filename: file.name, path: filePath } } },
-      { new: true }
+    const fileName = `${Date.now()}-${file.name}`;
+    const filePath = path.join(uploadDir, fileName);
+    const arrayBuffer = await file.arrayBuffer();
+    fs.writeFileSync(filePath, Buffer.from(arrayBuffer));
+    console.log("💾 File saved to:", filePath);
+
+    // Update vendor document array
+    const vendor = await Vendor.findById(id);
+    if (!vendor) {
+      console.warn("⚠️ Vendor not found:", id);
+      return NextResponse.json(
+        { success: false, error: "Vendor not found" },
+        { status: 404 }
+      );
+    }
+
+    vendor.documents.push({
+      fileName: file.name,
+      filePath: `/uploads/vendor/${fileName}`,
+    });
+
+    await vendor.save();
+    console.log("✅ Vendor document array updated:", vendor.documents.length);
+
+    return NextResponse.json({
+      success: true,
+      message: "Document uploaded successfully",
+      vendorId: vendor._id,
+      filePath: `/uploads/vendor/${fileName}`,
+    });
+  } catch (error) {
+    console.error("❌ Vendor document upload error:", error);
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
     );
-
-    return NextResponse.json({ success: true, data: vendor });
-  } catch (err) {
-    console.error("Upload error:", err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
-

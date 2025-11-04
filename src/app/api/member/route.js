@@ -3,6 +3,8 @@ import connectDB from "@/lib/mongoose";
 import Member from "@/models/member";
 import { verifyToken } from "@/lib/jwt";
 
+import sendEmail from "@/utils/sendEmail";
+
 
 // const requireAdmin = (req) =>{
 //   const authHeader = req.headers.get("authorization");
@@ -73,7 +75,7 @@ export async function GET(req){
     }
 }
 
-
+/*
 //POST: Create new member
 export async function POST(req) { 
 
@@ -114,6 +116,68 @@ export async function POST(req) {
     }
     return NextResponse.json(
       { success: false, message: "Failed to create member", error: error.message },
+      { status: 500 }
+    );
+  }
+}
+*/
+
+
+
+
+
+
+
+
+
+
+// 🧩 Add new member
+export async function POST(req) {
+  await connectDB();
+
+  try {
+    const body = await req.json();
+    const { name, email, password, role } = body;
+
+    if (!email || !password) {
+      return NextResponse.json(
+        { success: false, error: "Email and password are required" },
+        { status: 400 }
+      );
+    }
+
+    // ✅ Create new member
+    const member = await Member.create(body);
+
+    // ✅ Prepare plain text email content
+    const subject = "Welcome to Our Platform – Your Login Credentials";
+    const text = `
+Hello ${name || "Member"},
+
+You have been successfully added to the system.
+
+Here are your login credentials:
+Email: ${email}
+Password: ${password}
+
+Please log in and update your password after your first login.
+
+Best regards,
+Admin Team
+`;
+
+    // ✅ Send email (no HTML)
+    await sendEmail(email, subject, text);
+
+    return NextResponse.json({
+      success: true,
+      message: "Member added successfully and email sent",
+      data: member,
+    });
+  } catch (error) {
+    console.error("POST /api/member error:", error);
+    return NextResponse.json(
+      { success: false, error: error.message },
       { status: 500 }
     );
   }

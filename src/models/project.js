@@ -1,22 +1,62 @@
 import mongoose from "mongoose";
 
 const projectSchema = new mongoose.Schema({
-    name:{
-        type:String,
-        required:true
-    },
-    code:{
+
+    project_code:{
         type:String,
         required:true,
         unique:true
     },
-    type:{
+    project_name:{
         type:String,
-        enum:["Residential","Commercial","Industrial","Infrastructure"],
         required:true
+    },
+    project_description:{
+        type:String,
+    },
+    client_name:{
+         type:String,
+    },
+    client_email:{
+         type:String,
+    },
+    password: {
+    type: String,
+    required: true,
+    },
+    client_phone_number:{
+         type:String,
+    },
+    location:{
+        type:String,
     },
     startDate: { type: Date},
     endDate: { type: Date },
+    budget:{
+        type:Number,
+        required:true,
+        min:0
+    },
+   upload_files: [
+      {
+        fileName: { type: String },
+        fileUrl: { type: String }, 
+        uploadedAt: { type: Date, default: Date.now },
+        uploadedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      },
+    ],
+
+
+
+
+    type:{
+        type:String,
+        enum:["Residential","Commercial","Industrial","Infrastructure"],
+    },
+    
     currency:{
         type:String,
         default:"INR"
@@ -25,20 +65,7 @@ const projectSchema = new mongoose.Schema({
         type:String,
         default:"+00:00"
     },
-    budget:{
-        type:Number,
-        required:true,
-        min:0
-    },
-    location:{
-        type:String,
-    },
-    description:{
-        type:String,
-    },
-    projectPhoto:{
-        type:String
-    },
+    
     status: {
     type: String,
     enum: ["planned", "in-progress", "on-hold", "completed", "cancelled"],
