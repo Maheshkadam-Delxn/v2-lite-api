@@ -30,7 +30,20 @@ export function verifyToken(input) {
   } else {
     return null;
   }
+}
 
+*/
+
+
+
+export function verifyToken(request) {
+  // request must be the Next.js Request object
+  const authHeader = request.headers.get("authorization");
+  console.log("Auth header:", authHeader);
+
+  if (!authHeader) return null;
+
+  const token = authHeader.split(" ")[1];
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     return decoded;

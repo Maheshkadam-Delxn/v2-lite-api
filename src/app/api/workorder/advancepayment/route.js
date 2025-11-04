@@ -3,10 +3,19 @@ import connectDB from "@/lib/mongoose";
 import AdvancePayment from "@/models/workorder/advancePayment"
 import Project from "@/models/project"
 import { verifyToken } from "@/lib/jwt";
+import WorkOrder from "@/models/workorder/workorder"
 
 
-export async function GET(){
+export async function GET(req){
     try{
+
+        const decoded = verifyToken(req);
+  if(!decoded){
+    return NextResponse.json(
+      {success:false,error:"Unauhorized"},
+      {status:401}
+    );
+  }
         await connectDB();
 
         const body = await AdvancePayment.find();
@@ -33,10 +42,18 @@ export async function GET(){
 
 export async function POST(req){
     try{
+
+        const decoded = verifyToken(req);
+          if(!decoded){
+            return NextResponse.json(
+              {success:false,error:"Unauhorized"},
+              {status:401}
+            );
+          }
         await connectDB();
 
         const body = await req.json();
-        const {projectId} = body;
+        const {projectId,workOrder} = body;
 
         if(!projectId){
             return NextResponse.json(
@@ -54,14 +71,9 @@ export async function POST(req){
             )
         }
 
-        const initails = projectData.name
-        .split(" ")
-        .map(word => word[0])
-        .join("")
-        .toUpperCase();
-
         const projectCode = projectData.code;
 
+        //Auto generate payment number
         const lastPayment = await AdvancePayment.findOne({projectId}).sort({createdAt:-1}).lean();
         let sequence = 1;
         if(lastPayment?.paymentNo){
@@ -70,7 +82,18 @@ export async function POST(req){
         }
 
         const formattedSeq  = String(sequence).padStart(5,"0");
-        const paymentNo = `${initails}${projectCode}-APN-${formattedSeq}`;
+        const paymentNo = `${projectCode}-APN-${formattedSeq}`;
+
+        let selectedWorkOrder = null;
+        if(WorkOrder){
+            selectedWorkOrder = await  WorkOrder.findById(workOrder);
+            if(!selectedWorkOrder){
+                return NextResponse.json(
+                    {success:false,message:"Invaid work order selected"},
+                    {status:404}
+                );
+            }
+        }
         const newPayment = await AdvancePayment.create({
             ...body,
             paymentNo

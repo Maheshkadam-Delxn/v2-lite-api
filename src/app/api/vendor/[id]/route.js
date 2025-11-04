@@ -14,7 +14,7 @@ export async function PATCH(request, { params }) {
     return NextResponse.json(
       { success: false, error: "Forbidden - Superadmin only" },
       { status: 403 }
-    );
+    ); 
   }
   
 

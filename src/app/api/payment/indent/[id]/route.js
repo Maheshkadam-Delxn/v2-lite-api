@@ -10,9 +10,12 @@ export async function GET(req, { params }) {
   await connectDB();
   try {
     const indent = await Indent.findById(params.id)
+      .populate("assignTo projectId")
       .populate("assignTo", "name email")
       .populate("shareTo", "name email")
       .populate("projectId", "name projectCode");
+    if (!indent) return NextResponse.json({ error: "Not found" }, { status: 404 });
+      
 
     if (!indent) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });

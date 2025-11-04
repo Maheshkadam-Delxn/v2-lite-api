@@ -2,13 +2,25 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
 import WorkOrder from '@/models/workorder/workorder'
 import Project from '@/models/project'
+import { verifyToken } from "@/lib/jwt";
+import BOQ from "@/models/project-resources/boq";
+import Vendor from "@/models/vendor";
+import AdvancePayment from "@/models/workorder/advancePayment"
 
-export async function GET(){
+export async function GET(req){
     try{
+
+        const decoded = verifyToken(req);
+          if(!decoded){
+            return NextResponse.json(
+              {success:false,error:"Unauhorized"},
+              {status:401}
+            );
+          }
 
         await connectDB();
 
-        const body = await WorkOrder.find();
+        const body = await WorkOrder.find().populate("vendor","name"); 
 
         if(!body){
             return NextResponse.json(
@@ -31,10 +43,18 @@ export async function GET(){
 export async function POST(req){
     try{
 
+        const decoded = verifyToken(req);
+          if(!decoded){
+            return NextResponse.json(
+              {success:false,error:"Unauhorized"},
+              {status:401}
+            );
+          }
+
         await connectDB();
 
         const body = await req.json();
-        const {projectId} = body;
+        const {projectId,vendor,items=[],retentionPercentage=0,taxPercentage=0,advancePayment} = body;
 
         console.log("project",projectId);
 
@@ -54,11 +74,14 @@ export async function POST(req){
             );
         }
 
-        const initials = projectData.name
-        .split(" ")
-        .map(word =>word[0])
-        .join("")
-        .toUpperCase();
+        const vendorData = await Vendor.findById(vendor);
+        if(!vendorData){
+            return NextResponse.json(
+                {success:false,message:"Vendor not found"},
+                {status:404}
+            );
+        }
+
 
         const projectCode = projectData.code;
 
@@ -70,10 +93,42 @@ export async function POST(req){
         }
 
         const formattedSeq = String(sequence).padStart(5,"0");
-        const workOrderNo = `${initials}${projectCode}-WO-${formattedSeq}`;
+        const workOrderNo = `${projectCode}-WO-${formattedSeq}`;
+
+        let totalAmount = 0;
+
+        const processItems = items.map((item) =>{
+            const total = (item.rate || 0) * (item.quantity || 0);
+            totalAmount += total;
+            return {...item,total};
+        })
+
+        const retentionAmount = (retentionPercentage/100) * totalAmount;
+        const taxAmount = (taxPercentage/100) * totalAmount;
+
+        let advanceUsed = 0;
+        if(advancePayment){
+            const advance = await AdvancePayment.findById(advancePayment);
+            if(advance){
+                advanceUsed = advance.amount || 0;
+                await AdvancePayment.findByIdAndUpdate(advancePayment,{
+                    workOrder:newWork?._id,
+                    paymentStatus:"linked",
+                });
+            }
+        }
+
+        const netPayable = totalAmount - retentionAmount - advanceUsed + taxAmount;
+
         const newWork = await WorkOrder.create({
             ...body,
-            workOrderNo
+            items:processItems,
+            workOrderNo,
+            totalAmount,
+            retentionAmount,
+            taxAmount,
+            advanceUsed,
+            netPayable 
         });
 
         if(!newWork){
@@ -84,7 +139,7 @@ export async function POST(req){
         }
 
         return NextResponse.json(
-            {success:true,message:"Work order created successfully"}
+            {success:true,message:"Work order created successfully",data:newWork}
         )
     }catch(error){
         return NextResponse.json(

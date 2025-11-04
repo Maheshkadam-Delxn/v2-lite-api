@@ -67,7 +67,7 @@ export async function DELETE(req,{params}){
         await connectDB();
 
         const {id} = await params;
-        const deleteDrawing = await Drawing.findByIdAndDelete({id});
+        const deleteDrawing = await Drawing.findByIdAndDelete(id);
 
         if(!deleteDrawing){
             return NextResponse.json(

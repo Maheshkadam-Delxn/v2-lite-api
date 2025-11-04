@@ -3,10 +3,16 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
 import { Indent } from "../../../../models/payment"; 
+<<<<<<< HEAD
 import "@/models/member";
 import "@/models/project";
 
 export async function POST(request) {
+=======
+
+
+export async function POST(req) {
+>>>>>>> 020cad8a92dffc40b0d67e4723aa9e769b95c77d
   await connectDB();
   try {
     const body = await request.json();
@@ -42,27 +48,25 @@ export async function POST(request) {
   }
 }
 
+<<<<<<< HEAD
 
 
 export async function GET() {
+=======
+export async function GET(req) {
+  await connectDB();
+>>>>>>> 020cad8a92dffc40b0d67e4723aa9e769b95c77d
   try {
-    await connectDB();
+    const url = new URL(req.url);
+    const { status, projectId } = Object.fromEntries(url.searchParams);
 
-    // Fetch all indents with related Member + Project populated
-    const indents = await Indent.find()
-      .populate("assignTo", "name email") // populate only some fields
-      .populate("shareTo", "name email")
-      .populate("projectId", "name projectCode");
+    const query = {};
+    if (status) query.status = status;
+    if (projectId) query.projectId = projectId;
 
-    return NextResponse.json({
-      success: true,
-      data: indents,
-    });
-  } catch (error) {
-    console.error("GET /api/payment/indent error:", error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    const indents = await Indent.find(query).populate("assignTo projectId");
+    return NextResponse.json({ success: true, data: indents });
+  } catch (err) {
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }

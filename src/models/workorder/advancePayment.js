@@ -30,6 +30,15 @@ const advancePaymentSchema = new mongoose.Schema({
     projectId:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Project" 
+    },
+    approvedBy:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Member",
+        default:null 
+    },
+    approvedAt:{
+        type:Date,
+        default:null 
     }
 },{timestamps:true})
 
