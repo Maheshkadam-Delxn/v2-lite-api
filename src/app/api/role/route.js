@@ -90,6 +90,7 @@ export async function GET(req) {
 
 export async function POST(req) {
   const decoded = await verifyToken(req);
+  console.log("Adsf",req);
   if (!decoded) {
     return NextResponse.json(
       { success: false, error: "Unauthorized" },

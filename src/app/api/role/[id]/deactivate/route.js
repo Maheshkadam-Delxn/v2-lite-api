@@ -5,13 +5,13 @@ import connectDB from "@/lib/mongoose";
 
 export async function PATCH(req, { params }) {
   try {
-    const decoded = await verifyToken(req);
-    if (!decoded) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    // const decoded = await verifyToken(req);
+    // if (!decoded) {
+    //   return NextResponse.json(
+    //     { success: false, error: "Unauthorized" },
+    //     { status: 401 }
+    //   );
+    // }
 
     await connectDB();
 
