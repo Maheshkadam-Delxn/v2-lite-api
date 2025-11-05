@@ -100,11 +100,11 @@ export async function PUT(req, { params }) {
 
 
 
-// DELETE: Remove vendor by ID
-import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongoose";
-import Vendor from "@/models/vendor";
-import { verifyToken } from "@/lib/jwt";
+// // DELETE: Remove vendor by ID
+// import { NextResponse } from "next/server";
+// import connectDB from "@/lib/mongoose";
+// import Vendor from "@/models/vendor";
+// import { verifyToken } from "@/lib/jwt";
 
 export async function DELETE(request, { params }) {
   await connectDB();
