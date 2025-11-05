@@ -8,6 +8,23 @@ const indentSchema = new mongoose.Schema({
     unique: true,
     required:true 
   },
+   items: [
+      {
+        item: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Item",
+          required: true,
+        },
+        name: {
+          type: String,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+        },
+        
+      },
+    ],
   assignTo:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"Member"

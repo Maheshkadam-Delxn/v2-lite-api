@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-
-
+ 
+ 
 const roleSchema = new mongoose.Schema({
     roleName:{
         type:String,
@@ -10,16 +10,16 @@ const roleSchema = new mongoose.Schema({
     isCopy:{
         status:{type:Boolean},
         ParentRole:{type:String}
-    }, 
+    },
     status:{type:String,default:"Active"},
      Permissions:{
         type:Object,
     },
     isActive:{
         type:Boolean,
-        default:true 
+        default:true
     }
 });
-
+ 
 delete mongoose.models.Role
 export default mongoose.models.Role || mongoose.model('Role',roleSchema);

@@ -5,23 +5,43 @@ import "@/models/vendor";
 import "@/models/project";
 import { Indent } from "@/models/payment";
 
-
-// ✅ Create Purchase Order
 export async function POST(request) {
   await connectDB();
+
   try {
     const body = await request.json();
-    const { purchaseId, vendor, comments, projectId, addItems } = body;
+    const { vendor, comments, projectId, addItems } = body;
 
+    // ✅ Find last Purchase Order to generate next ID
+    const lastPO = await PurchaseOrder.findOne().sort({ createdAt: -1 }).lean();
+
+    let nextNumber = 1;
+    if (lastPO && lastPO.purchaseId) {
+      // Extract numeric part (e.g., PO-005 → 5)
+      const lastNumber = parseInt(lastPO.purchaseId.replace(/\D/g, ""), 10);
+      nextNumber = lastNumber + 1;
+    }
+
+    // ✅ Generate new ID with dash (PO-001, PO-002, ...)
+    const nextPurchaseId = `PO-${nextNumber.toString().padStart(3, "0")}`;
+
+    // ✅ Create new Purchase Order
     const po = await PurchaseOrder.create({
-      purchaseId,
+      purchaseId: nextPurchaseId,
       vendor,
       comments,
       projectId,
-      addItems, // array of Indent IDs
+      addItems,
     });
 
-    return NextResponse.json({ success: true, data: po }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Purchase Order created successfully",
+        data: po,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error creating Purchase Order:", error);
     return NextResponse.json(
@@ -30,6 +50,7 @@ export async function POST(request) {
     );
   }
 }
+
 
 // ✅ Get All Purchase Orders
 export async function GET() {

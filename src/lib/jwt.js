@@ -1,4 +1,3 @@
-
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret"; // keep in .env.local
@@ -10,11 +9,22 @@ export function generateToken(user) {
     { expiresIn: "7d" }
   );
 }
-/*
-export function verifyToken(token) {
-  try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (error) {
+
+/**
+ * Safely verify JWT from either:
+ * - Next.js Request object
+ * - Raw token string
+
+  // Case 1: input is Request object
+  if (input?.headers?.get) {
+    const authHeader = input.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
+    token = authHeader.split(" ")[1];
+  }
+  // Case 2: input is raw token string
+  else if (typeof input === "string") {
+    token = input;
+  } else {
     return null;
   }
 }
@@ -25,21 +35,17 @@ export function verifyToken(token) {
 
 export function verifyToken(request) {
   // request must be the Next.js Request object
-  console.log('verifyToken called with request:', !!request, 'headers:', !!request?.headers);
   const authHeader = request.headers.get("authorization");
   console.log("Auth header:", authHeader);
 
   if (!authHeader) return null;
 
   const token = authHeader.split(" ")[1];
-  console.log("token",token);
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded:", decoded);
+    const decoded = jwt.verify(token, JWT_SECRET);
     return decoded;
   } catch (err) {
     console.error("JWT verify error:", err.message);
     return null;
   }
 }
-

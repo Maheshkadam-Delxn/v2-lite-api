@@ -31,11 +31,20 @@
                 |-- user
                     |-- [id]
                         |-- route.js
+            |-- client
+                |-- login
+                    |-- route.js
+            |-- currency
+                |-- route.js
             |-- department
                 |-- route.js
                 |-- [id]
                     |-- route.js
             |-- event
+                |-- route.js
+                |-- [id]
+                    |-- route.js
+            |-- items
                 |-- route.js
                 |-- [id]
                     |-- route.js
@@ -221,6 +230,7 @@
             |-- materailstock.js
             |-- material.js
             |-- unit.js
+        |-- item.js
         |-- mail.js
         |-- member.js
         |-- module.js
@@ -248,3 +258,4 @@
             |-- workorder.js
     |-- utils
         |-- sendEmail.js
+|-- test-bcrypt.js
