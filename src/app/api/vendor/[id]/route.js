@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
 import Vendor from "@/models/vendor";
-import { verifyToken } from "@/lib/jwt";
+import  verifyToken  from "@/lib/jwt";
 
 export async function PATCH(request, { params }) {
   await connectDB();
